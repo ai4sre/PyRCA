@@ -6,16 +6,16 @@
 """
 The base class for causal discovery methods.
 """
-import os
 import json
-import numpy as np
-import pandas as pd
-import networkx as nx
-from typing import List, Tuple, Dict
+import os
 from abc import abstractmethod
 from dataclasses import dataclass
+from typing import Dict, List, Tuple
 
-from pyrca.base import BaseModel, BaseConfig
+import networkx as nx
+import numpy as np
+import pandas as pd
+from pyrca.base import BaseConfig, BaseModel
 from pyrca.utils.domain import DomainParser
 
 
@@ -71,8 +71,8 @@ class CausalModel(BaseModel):
         var_names = adjacency_df.columns
         if self.config.run_pdag2dag:
             dag, flag = CausalModel.pdag2dag(adjacency_df.values)
-            if flag is False:
-                raise RuntimeError("Orientation of the undirected edges failed.")
+            # if flag is False:
+            #     raise RuntimeError("Orientation of the undirected edges failed.")
             adjacency_df = pd.DataFrame({var_names[i]: dag[:, i] for i in range(len(var_names))}, index=var_names)
         return adjacency_df
 
