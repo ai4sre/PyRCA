@@ -7,15 +7,15 @@
 The RCA method based on random walk
 """
 import pickle
-import numpy as np
-import pandas as pd
-import networkx as nx
-from typing import Union, Dict, List
 from collections import defaultdict
 from dataclasses import dataclass
+from typing import Dict, List, Union
 
-from pyrca.base import BaseConfig
+import networkx as nx
+import numpy as np
+import pandas as pd
 from pyrca.analyzers.base import BaseRCA, RCAResults
+from pyrca.base import BaseConfig
 
 
 @dataclass
@@ -242,13 +242,17 @@ class RandomWalk(BaseRCA):
         root_cause_nodes = []
         root_cause_paths = {}
         scores = [node_scores[m] for m in levels[0]]
-        for root, s in sorted(zip(levels[0], scores), key=lambda x: x[1], reverse=True)[:4]:
-            root_cause_nodes.append((root, s))
-            paths = []
-            for anomaly in anomalous_metrics:
-                path_scores = self._get_root_cause_paths(root, anomaly, node_scores)
-                for nodes, path_score in path_scores:
-                    paths.append((path_score, [(node, None) for node in nodes]))
-            root_cause_paths[root] = paths
+        if len(levels[0]) == 0:
+            for root, s in sorted(node_scores.items(), reverse=True)[:self.config.root_cause_top_k]:
+                root_cause_nodes.append((root, s))
+        else:
+            for root, s in sorted(zip(levels[0], scores), key=lambda x: x[1], reverse=True)[:self.config.root_cause_top_k]:
+                root_cause_nodes.append((root, s))
+                paths = []
+                for anomaly in anomalous_metrics:
+                    path_scores = self._get_root_cause_paths(root, anomaly, node_scores)
+                    for nodes, path_score in path_scores:
+                        paths.append((path_score, [(node, None) for node in nodes]))
+                root_cause_paths[root] = paths
 
         return RCAResults(root_cause_nodes=root_cause_nodes, root_cause_paths=root_cause_paths)
