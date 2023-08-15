@@ -153,6 +153,8 @@ class RandomWalk(BaseRCA):
             path, node = [], start
             for _ in range(num_steps):
                 probs = graph[node]["probs"]
+                if sum(probs) == 0:  # the same probability if all probs are zero
+                    probs = np.ones(len(probs)) / len(probs)
                 index = np.random.choice(list(range(len(probs))), p=probs)
                 node = graph[node]["nodes"][index]
                 path.append(node)
