@@ -141,7 +141,7 @@ class RandomWalk(BaseRCA):
 
         for metric in graph.keys():
             w = np.array(graph[metric]["weights"])
-            graph[metric]["probs"] = w / sum(w)
+            graph[metric]["probs"] = np.zeros(len(w)) if np.all(w == 0) else w / sum(w)
         return graph
 
     @staticmethod
